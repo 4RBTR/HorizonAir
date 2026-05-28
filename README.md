@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Horizon Air - Sistem Informasi Tiket Penerbangan
 
-## Getting Started
+Horizon Air adalah aplikasi web pemesanan tiket penerbangan modern kelas eksekutif yang dikembangkan sebagai **Project UKL (Ujian Kompetensi Keahlian) SMK Telkom Malang**. 
 
-First, run the development server:
+Aplikasi ini mengintegrasikan portal pencarian tiket penerbangan bagi pelanggan (Customer) serta panel kontrol manajemen penerbangan bagi administrator (Admin).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🚀 Teknologi yang Digunakan
+
+Aplikasi ini dibangun menggunakan tumpukan teknologi modern berikut:
+
+- **Core & Routing:** [Next.js 16 (App Router)](https://nextjs.org) & [React 19](https://react.dev)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com) & [Shadcn UI](https://ui.shadcn.com)
+- **Authentication:** [NextAuth.js v4](https://next-auth.js.org) (dengan JWT Session & Interceptor token otomatis)
+- **State Management & Fetching:** [TanStack React Query v5](https://tanstack.com/query) & [Axios](https://axios-http.com)
+- **Visuals & Icons:** [Lucide Icons](https://lucide.dev) & Animasi transisi custom CSS
+- **Date Helpers:** [date-fns](https://date-fns.org)
+- **Notifications:** [Sonner](https://sonner.dev)
+
+---
+
+## 🌟 Fitur Utama
+
+### ✈️ Portal Pelanggan (Customer Experience)
+- **Landing / Welcome Page:** Tampilan beranda premium dengan visual petualangan, lencana promo interaktif, dan navigasi langsung ke halaman register.
+- **Flight Search Portal:** Antarmuka pencarian tiket dengan filter pencarian instan rute keberangkatan, tujuan, tanggal, dan jumlah penumpang.
+- **Flight Search Results:** Dilengkapi visual **timeline penerbangan grafik**, indikator bagasi gratis (20kg), status makanan kabin (snack), fasilitas WiFi, serta tag perlindungan refund.
+- **Voucher Promo & Checkout:** Form pengisian data penumpang terstruktur lengkap dengan kalkulasi potongan harga kupon otomatis pada invoice pembayaran.
+- **E-Tiket & Tiket Saya:** Menggunakan *dynamic local serialization fallback* (`localStorage`) untuk menyimpan data lengkap tiket yang berhasil dipesan agar tetap dapat ditampilkan di riwayat tiket secara instan.
+
+### 🛠️ Panel Administrator (Admin Operations)
+- **Operational Dashboard:** Dasbor visual ringkasan data bandara, jadwal terbang, status live server database (Supabase) dan service API (Railway).
+- **Master Bandara (Airports):** CRUD data bandara lengkap dengan kode IATA, lokasi kota/negara, dan kapasitas terminal.
+- **Master Maskapai (Airlines):** CRUD armada maskapai, detail perusahaan induk, dan jumlah kru aktif.
+- **Master Jadwal Penerbangan (Schedules):** Penjadwalan terbang, pemilihan asal-tujuan, dan kalkulasi durasi jam/menit terbang.
+- **Master Kode Promo (Vouchers):** Pengaturan kode kupon diskon persentase dan batas maksimal potongan.
+- **Ubah Status Penerbangan:** Dasbor pembaruan live status delay, berangkat, mendarat, atau pembatalan terbang.
+
+---
+
+## 🛠️ Langkah Menjalankan Project
+
+### 1. Salin Environment Variables
+Buat berkas `.env.local` di root direktori proyek Anda dan isikan konfigurasi berikut:
+
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-key-here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Instalasi Dependensi
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Jalankan Mode Development
+```bash
+npm run dev
+```
+Buka browser Anda dan akses halaman [http://localhost:3000](http://localhost:3000).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🖥️ Hak Akses Login Akun (Demo/Uji Coba)
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Karena sistem backend belum memiliki validator role bawaan pada database, frontend memetakan hak akses secara dinamis berdasarkan username yang diautentikasi:
+- **Akun Administrator:** Username mengandung kata **`admin`** (Contoh: `admin`, `admin123`) -> Otomatis diarahkan ke panel dasbor `/admin`.
+- **Akun Pelanggan (Customer):** Username bebas selain admin -> Diarahkan ke portal `/customer`.
