@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, Undo2, Save, CalendarDays, Clock, ArrowRight, Plane, Landmark } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -235,32 +236,171 @@ export default function MasterJadwalPage() {
                   <FormItem className="space-y-1"><FormLabel className="text-xs font-bold text-slate-600">Kode Penerbangan</FormLabel><FormControl><Input placeholder="Contoh: HX-1234" {...field} className="h-11 rounded-xl border-slate-200 uppercase font-bold" /></FormControl><FormMessage /></FormItem>
                 )} />
                 
-                 <FormField control={form.control as any} name="maskapaiId" render={({ field }: any) => (
-                  <FormItem className="space-y-1"><FormLabel className="text-xs font-bold text-slate-600">Maskapai</FormLabel>
-                    <Select onValueChange={(v) => v && field.onChange(v)} value={field.value}>
-                      <FormControl><SelectTrigger className="h-11 rounded-xl border-slate-200"><SelectValue placeholder="Pilih Maskapai" /></SelectTrigger></FormControl>
-                      <SelectContent>{maskapais?.map(m => <SelectItem key={m.id} value={String(m.id)}>{m.nama}</SelectItem>)}</SelectContent>
-                    </Select>
-                    <FormMessage /></FormItem>
-                )} />
+                 <FormField control={form.control as any} name="maskapaiId" render={({ field }: any) => {
+                   const [search, setSearch] = useState("");
+                   const [open, setOpen] = useState(false);
+                   const selectedMaskapai = maskapais?.find(m => String(m.id) === String(field.value));
+                   const displayText = selectedMaskapai ? selectedMaskapai.nama : "";
+                   
+                   const filtered = maskapais?.filter(m => 
+                     m.nama.toLowerCase().includes(search.toLowerCase()) ||
+                     m.perusahaan.toLowerCase().includes(search.toLowerCase())
+                   ) || [];
+
+                   return (
+                     <FormItem className="space-y-1 relative">
+                       <FormLabel className="text-xs font-bold text-slate-600">Maskapai</FormLabel>
+                       <div className="relative">
+                         <Input 
+                           placeholder="Cari maskapai..." 
+                           value={open ? search : displayText}
+                           onChange={(e) => setSearch(e.target.value)}
+                           onFocus={() => { setOpen(true); setSearch(""); }}
+                           className="h-11 rounded-xl border-slate-200 font-bold"
+                         />
+                       </div>
+                       {open && (
+                         <>
+                           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+                           <div className="absolute top-[calc(100%+4px)] left-0 right-0 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1 space-y-0.5">
+                             {filtered.length === 0 ? (
+                               <p className="text-xs text-slate-400 text-center py-3 font-bold">Tidak ditemukan</p>
+                             ) : (
+                               filtered.map(m => (
+                                 <button
+                                   key={m.id}
+                                   type="button"
+                                   onClick={() => {
+                                     field.onChange(String(m.id));
+                                     setOpen(false);
+                                   }}
+                                   className={cn(
+                                     "w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-colors",
+                                     String(field.value) === String(m.id) ? "bg-purple-600 text-white" : "text-slate-700 hover:bg-slate-100"
+                                   )}
+                                 >
+                                   {m.nama} ({m.perusahaan})
+                                 </button>
+                               ))
+                             )}
+                           </div>
+                         </>
+                       )}
+                       <FormMessage />
+                     </FormItem>
+                   );
+                 }} />
 
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control as any} name="bandaraKeberangkatanId" render={({ field }: any) => (
-                    <FormItem className="space-y-1"><FormLabel className="text-xs font-bold text-slate-600">Asal</FormLabel>
-                      <Select onValueChange={(v) => v && field.onChange(v)} value={field.value}>
-                        <FormControl><SelectTrigger className="h-11 rounded-xl border-slate-200"><SelectValue placeholder="Asal" /></SelectTrigger></FormControl>
-                        <SelectContent>{bandaras?.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.kodeIATA} - {b.kota}</SelectItem>)}</SelectContent>
-                      </Select>
-                      <FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control as any} name="bandaraTujuanId" render={({ field }: any) => (
-                    <FormItem className="space-y-1"><FormLabel className="text-xs font-bold text-slate-600">Tujuan</FormLabel>
-                      <Select onValueChange={(v) => v && field.onChange(v)} value={field.value}>
-                        <FormControl><SelectTrigger className="h-11 rounded-xl border-slate-200"><SelectValue placeholder="Tujuan" /></SelectTrigger></FormControl>
-                        <SelectContent>{bandaras?.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.kodeIATA} - {b.kota}</SelectItem>)}</SelectContent>
-                      </Select>
-                      <FormMessage /></FormItem>
-                  )} />
+                  <FormField control={form.control as any} name="bandaraKeberangkatanId" render={({ field }: any) => {
+                    const [search, setSearch] = useState("");
+                    const [open, setOpen] = useState(false);
+                    const selectedBandara = bandaras?.find(b => String(b.id) === String(field.value));
+                    const displayText = selectedBandara ? `${selectedBandara.kodeIATA} - ${selectedBandara.kota}` : "";
+                    
+                    const filtered = bandaras?.filter(b => 
+                      b.kodeIATA.toLowerCase().includes(search.toLowerCase()) ||
+                      b.kota.toLowerCase().includes(search.toLowerCase())
+                    ) || [];
+
+                    return (
+                      <FormItem className="space-y-1 relative">
+                        <FormLabel className="text-xs font-bold text-slate-600">Asal</FormLabel>
+                        <div className="relative">
+                          <Input 
+                            placeholder="Cari asal..." 
+                            value={open ? search : displayText}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onFocus={() => { setOpen(true); setSearch(""); }}
+                            className="h-11 rounded-xl border-slate-200 font-bold"
+                          />
+                        </div>
+                        {open && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+                            <div className="absolute top-[calc(100%+4px)] left-0 right-0 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1 space-y-0.5">
+                              {filtered.length === 0 ? (
+                                <p className="text-xs text-slate-400 text-center py-3 font-bold">Tidak ditemukan</p>
+                              ) : (
+                                filtered.map(b => (
+                                  <button
+                                    key={b.id}
+                                    type="button"
+                                    onClick={() => {
+                                      field.onChange(String(b.id));
+                                      setOpen(false);
+                                    }}
+                                    className={cn(
+                                      "w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-colors",
+                                      String(field.value) === String(b.id) ? "bg-purple-600 text-white" : "text-slate-700 hover:bg-slate-100"
+                                    )}
+                                  >
+                                    {b.kodeIATA} - {b.kota}
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          </>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }} />
+
+                  <FormField control={form.control as any} name="bandaraTujuanId" render={({ field }: any) => {
+                    const [search, setSearch] = useState("");
+                    const [open, setOpen] = useState(false);
+                    const selectedBandara = bandaras?.find(b => String(b.id) === String(field.value));
+                    const displayText = selectedBandara ? `${selectedBandara.kodeIATA} - ${selectedBandara.kota}` : "";
+                    
+                    const filtered = bandaras?.filter(b => 
+                      b.kodeIATA.toLowerCase().includes(search.toLowerCase()) ||
+                      b.kota.toLowerCase().includes(search.toLowerCase())
+                    ) || [];
+
+                    return (
+                      <FormItem className="space-y-1 relative">
+                        <FormLabel className="text-xs font-bold text-slate-600">Tujuan</FormLabel>
+                        <div className="relative">
+                          <Input 
+                            placeholder="Cari tujuan..." 
+                            value={open ? search : displayText}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onFocus={() => { setOpen(true); setSearch(""); }}
+                            className="h-11 rounded-xl border-slate-200 font-bold"
+                          />
+                        </div>
+                        {open && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+                            <div className="absolute top-[calc(100%+4px)] left-0 right-0 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1 space-y-0.5">
+                              {filtered.length === 0 ? (
+                                <p className="text-xs text-slate-400 text-center py-3 font-bold">Tidak ditemukan</p>
+                              ) : (
+                                filtered.map(b => (
+                                  <button
+                                    key={b.id}
+                                    type="button"
+                                    onClick={() => {
+                                      field.onChange(String(b.id));
+                                      setOpen(false);
+                                    }}
+                                    className={cn(
+                                      "w-full text-left px-3 py-2 rounded-lg text-xs font-bold transition-colors",
+                                      String(field.value) === String(b.id) ? "bg-purple-600 text-white" : "text-slate-700 hover:bg-slate-100"
+                                    )}
+                                  >
+                                    {b.kodeIATA} - {b.kota}
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          </>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

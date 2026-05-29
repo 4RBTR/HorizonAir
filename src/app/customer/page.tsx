@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { getJadwal } from "@/services/jadwal";
 import { getPromo } from "@/services/promo";
+import { getBandara } from "@/services/bandara";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,7 +30,7 @@ import {
   ChevronRight,
   Loader2
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -52,6 +53,61 @@ export default function CustomerDashboard() {
 
   const { data: jadwals, isLoading: isJadwalLoading } = useQuery({ queryKey: ["jadwal"], queryFn: getJadwal });
   const { data: promos } = useQuery({ queryKey: ["promo"], queryFn: getPromo });
+  const { data: bandaras } = useQuery({ queryKey: ["bandara"], queryFn: getBandara });
+
+  const [asalSearch, setAsalSearch] = useState("");
+  const [tujuanSearch, setTujuanSearch] = useState("");
+  const [showAsalDropdown, setShowAsalDropdown] = useState(false);
+  const [showTujuanDropdown, setShowTujuanDropdown] = useState(false);
+
+  // Synchronize text inputs when searchData codes are set from other triggers (e.g. popular destinations)
+  useEffect(() => {
+    if (bandaras) {
+      if (searchData.asal) {
+        const found = bandaras.find(b => b.kodeIATA === searchData.asal);
+        if (found) {
+          setAsalSearch(`${found.kodeIATA} - ${found.kota} (${found.nama})`);
+        }
+      } else {
+        setAsalSearch("");
+      }
+      if (searchData.tujuan) {
+        const found = bandaras.find(b => b.kodeIATA === searchData.tujuan);
+        if (found) {
+          setTujuanSearch(`${found.kodeIATA} - ${found.kota} (${found.nama})`);
+        }
+      } else {
+        setTujuanSearch("");
+      }
+    }
+  }, [bandaras, searchData.asal, searchData.tujuan]);
+
+  // Autocomplete filtering logic
+  const filteredAsalAirports = useMemo(() => {
+    if (!bandaras) return [];
+    const term = asalSearch.split(" - ")[0];
+    const cleanSearch = (searchData.asal && term === searchData.asal) ? "" : asalSearch;
+
+    if (!cleanSearch) return bandaras;
+    return bandaras.filter(b => 
+      b.kodeIATA.toLowerCase().includes(cleanSearch.toLowerCase()) ||
+      b.kota.toLowerCase().includes(cleanSearch.toLowerCase()) ||
+      b.nama.toLowerCase().includes(cleanSearch.toLowerCase())
+    );
+  }, [bandaras, asalSearch, searchData.asal]);
+
+  const filteredTujuanAirports = useMemo(() => {
+    if (!bandaras) return [];
+    const term = tujuanSearch.split(" - ")[0];
+    const cleanSearch = (searchData.tujuan && term === searchData.tujuan) ? "" : tujuanSearch;
+
+    if (!cleanSearch) return bandaras;
+    return bandaras.filter(b => 
+      b.kodeIATA.toLowerCase().includes(cleanSearch.toLowerCase()) ||
+      b.kota.toLowerCase().includes(cleanSearch.toLowerCase()) ||
+      b.nama.toLowerCase().includes(cleanSearch.toLowerCase())
+    );
+  }, [bandaras, tujuanSearch, searchData.tujuan]);
 
   // Dynamically extract unique departure airports that have flight schedules
   const uniqueAsal = useMemo(() => {
@@ -187,44 +243,132 @@ export default function CustomerDashboard() {
           <form onSubmit={handleSearch} className="space-y-8">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label className="flex items-center gap-2 text-slate-600 font-bold text-sm">
                   <PlaneTakeoff className="h-4 w-4 text-blue-600" /> Berangkat Dari
                 </Label>
-                <Select
-                  value={searchData.asal}
-                  onValueChange={(v) => setSearchData({...searchData, asal: v || ""})}
-                >
-                  <SelectTrigger className="w-full h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-blue-600 font-bold text-slate-800 border">
-                    <SelectValue placeholder="Pilih Bandara Asal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {uniqueAsal.map(b => (
-                      <SelectItem key={b.id} value={b.kodeIATA}>{b.kodeIATA} - {b.kota} ({b.nama})</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-[10px] text-slate-400 font-medium">Bandara asal keberangkatan</p>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Ketik bandara asal..."
+                    value={asalSearch}
+                    onChange={(e) => {
+                      setAsalSearch(e.target.value);
+                      if (searchData.asal) {
+                        setSearchData({ ...searchData, asal: "" });
+                      }
+                    }}
+                    onFocus={() => setShowAsalDropdown(true)}
+                    className="w-full h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none font-bold text-slate-800 border px-4"
+                  />
+                  {searchData.asal && (
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold bg-blue-100 text-blue-800 px-2 py-1 rounded-md">
+                      {searchData.asal}
+                    </span>
+                  )}
+                </div>
+
+                {showAsalDropdown && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowAsalDropdown(false)} />
+                    <div className="absolute top-[calc(100%+4px)] left-0 right-0 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1 scrollbar-thin">
+                      {filteredAsalAirports.length === 0 ? (
+                        <p className="text-xs text-slate-400 text-center py-4 font-bold">Bandara tidak ditemukan</p>
+                      ) : (
+                        filteredAsalAirports.map(b => (
+                          <button
+                            key={b.id}
+                            type="button"
+                            onClick={() => {
+                              setSearchData({ ...searchData, asal: b.kodeIATA });
+                              setAsalSearch(`${b.kodeIATA} - ${b.kota} (${b.nama})`);
+                              setShowAsalDropdown(false);
+                            }}
+                            className={cn(
+                              "w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-colors flex items-center justify-between",
+                              searchData.asal === b.kodeIATA 
+                                ? "bg-blue-600 text-white" 
+                                : "text-slate-700 hover:bg-slate-100"
+                            )}
+                          >
+                            <span>{b.kodeIATA} - {b.kota} ({b.nama})</span>
+                            <span className={cn(
+                              "text-[10px] uppercase px-1.5 py-0.5 rounded font-black",
+                              searchData.asal === b.kodeIATA ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                            )}>
+                              {b.negara}
+                            </span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
+                <p className="text-[10px] text-slate-400 font-medium">Ketik kota, nama bandara, atau kode IATA</p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label className="flex items-center gap-2 text-slate-600 font-bold text-sm">
                   <PlaneLanding className="h-4 w-4 text-blue-600" /> Tujuan Destinasi
                 </Label>
-                <Select
-                  value={searchData.tujuan}
-                  onValueChange={(v) => setSearchData({...searchData, tujuan: v || ""})}
-                >
-                  <SelectTrigger className="w-full h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-blue-600 font-bold text-slate-800 border">
-                    <SelectValue placeholder="Pilih Bandara Tujuan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {uniqueTujuan.map(b => (
-                      <SelectItem key={b.id} value={b.kodeIATA}>{b.kodeIATA} - {b.kota} ({b.nama})</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-[10px] text-slate-400 font-medium">Tujuan destinasi penerbangan</p>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Ketik bandara tujuan..."
+                    value={tujuanSearch}
+                    onChange={(e) => {
+                      setTujuanSearch(e.target.value);
+                      if (searchData.tujuan) {
+                        setSearchData({ ...searchData, tujuan: "" });
+                      }
+                    }}
+                    onFocus={() => setShowTujuanDropdown(true)}
+                    className="w-full h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none font-bold text-slate-800 border px-4"
+                  />
+                  {searchData.tujuan && (
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold bg-blue-100 text-blue-800 px-2 py-1 rounded-md">
+                      {searchData.tujuan}
+                    </span>
+                  )}
+                </div>
+
+                {showTujuanDropdown && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowTujuanDropdown(false)} />
+                    <div className="absolute top-[calc(100%+4px)] left-0 right-0 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1 scrollbar-thin">
+                      {filteredTujuanAirports.length === 0 ? (
+                        <p className="text-xs text-slate-400 text-center py-4 font-bold">Bandara tidak ditemukan</p>
+                      ) : (
+                        filteredTujuanAirports.map(b => (
+                          <button
+                            key={b.id}
+                            type="button"
+                            onClick={() => {
+                              setSearchData({ ...searchData, tujuan: b.kodeIATA });
+                              setTujuanSearch(`${b.kodeIATA} - ${b.kota} (${b.nama})`);
+                              setShowTujuanDropdown(false);
+                            }}
+                            className={cn(
+                              "w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-colors flex items-center justify-between",
+                              searchData.tujuan === b.kodeIATA 
+                                ? "bg-blue-600 text-white" 
+                                : "text-slate-700 hover:bg-slate-100"
+                            )}
+                          >
+                            <span>{b.kodeIATA} - {b.kota} ({b.nama})</span>
+                            <span className={cn(
+                              "text-[10px] uppercase px-1.5 py-0.5 rounded font-black",
+                              searchData.tujuan === b.kodeIATA ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                            )}>
+                              {b.negara}
+                            </span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
+                <p className="text-[10px] text-slate-400 font-medium">Ketik kota, nama bandara, atau kode IATA</p>
               </div>
 
               <div className="space-y-2">
