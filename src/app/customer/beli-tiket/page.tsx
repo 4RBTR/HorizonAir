@@ -33,7 +33,7 @@ export default function BeliTiketPage() {
   const { data: jadwals } = useQuery({ queryKey: ["jadwal"], queryFn: getJadwal });
   const { data: promos } = useQuery({ queryKey: ["promo"], queryFn: getPromo });
 
-  const jadwal = jadwals?.find(j => j.id === jadwalId);
+  const jadwal = jadwals?.find(j => String(j.id) === String(jadwalId));
 
   const totals = useMemo(() => {
     if (!jadwal) return { subtotal: 0, diskon: 0, total: 0 };
