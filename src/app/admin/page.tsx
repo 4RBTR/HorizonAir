@@ -1,16 +1,61 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plane, Palmtree, CalendarDays, Ticket, ShieldAlert, ArrowUpRight, Activity, Users } from "lucide-react";
+"use client";
 
-export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions);
+import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import { getBandara } from "@/services/bandara";
+import { getMaskapai } from "@/services/maskapai";
+import { getJadwal } from "@/services/jadwal";
+import { getPromo } from "@/services/promo";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Plane, Palmtree, CalendarDays, Ticket, ShieldAlert, ArrowUpRight, Activity } from "lucide-react";
+import { useMemo } from "react";
+import { cn } from "@/lib/utils";
+
+export default function AdminDashboard() {
+  const { data: session } = useSession();
+
+  const { data: bandaras, isError: isBandaraError } = useQuery({ queryKey: ["bandara"], queryFn: getBandara });
+  const { data: maskapais, isError: isMaskapaiError } = useQuery({ queryKey: ["maskapai"], queryFn: getMaskapai });
+  const { data: jadwals, isError: isJadwalError } = useQuery({ queryKey: ["jadwal"], queryFn: getJadwal });
+  const { data: promos, isError: isPromoError } = useQuery({ queryKey: ["promo"], queryFn: getPromo });
+
+  const hasError = isBandaraError || isMaskapaiError || isJadwalError || isPromoError;
 
   const stats = [
-    { title: "Total Bandara", value: "12", desc: "Bandara terdaftar", icon: Palmtree, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
-    { title: "Total Maskapai", value: "8", desc: "Maskapai penerbangan", icon: Plane, iconClass: "rotate-45", color: "text-blue-500", bg: "bg-blue-500/10 border-blue-500/20" },
-    { title: "Jadwal Aktif", value: "45", desc: "Keberangkatan & delay", icon: CalendarDays, color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
-    { title: "Kode Promo", value: "5", desc: "Voucher diskon", icon: Ticket, color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/20" },
+    { title: "Total Bandara", value: bandaras ? String(bandaras.length) : "...", desc: "Bandara terdaftar", icon: Palmtree, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
+    { title: "Total Maskapai", value: maskapais ? String(maskapais.length) : "...", desc: "Maskapai penerbangan", icon: Plane, iconClass: "rotate-45", color: "text-blue-500", bg: "bg-blue-500/10 border-blue-500/20" },
+    { title: "Jadwal Aktif", value: jadwals ? String(jadwals.length) : "...", desc: "Keberangkatan & delay", icon: CalendarDays, color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
+    { title: "Kode Promo", value: promos ? String(promos.length) : "...", desc: "Voucher diskon", icon: Ticket, color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/20" },
+  ];
+
+  const activityLogs = useMemo(() => {
+    if (!jadwals) return [];
+    
+    // Extract recent live modifications from the schedule statusTerakhir times
+    return jadwals
+      .filter(j => j.statusTerakhir && j.statusTerakhir.waktuPerubahan !== "-")
+      .sort((a, b) => {
+        try {
+          const parseDate = (str: string) => {
+            const [datePart, timePart] = str.split(" ");
+            const [d, m, y] = datePart.split("-").map(Number);
+            return new Date(y, m - 1, d, ...timePart.split(":").map(Number));
+          };
+          return parseDate(b.statusTerakhir!.waktuPerubahan).getTime() - parseDate(a.statusTerakhir!.waktuPerubahan).getTime();
+        } catch (e) {
+          return 0;
+        }
+      })
+      .slice(0, 4)
+      .map(j => ({
+        time: j.statusTerakhir!.waktuPerubahan,
+        action: `Perubahan status live penerbangan ${j.kodePenerbangan} menjadi ${j.statusTerakhir!.status}`,
+        user: "System Admin"
+      }));
+  }, [jadwals]);
+
+  const displayLogs = activityLogs.length > 0 ? activityLogs : [
+    { time: "Live Monitoring", action: "Belum ada aktivitas perubahan status operasional penerbangan hari ini.", user: "Sistem Otomatis" }
   ];
 
   return (
@@ -23,8 +68,8 @@ export default async function AdminDashboard() {
         </div>
         
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border border-slate-200 shadow-sm text-xs font-bold text-slate-600">
-          <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Sistem Live</span>
+          <div className={cn("h-2 w-2 rounded-full bg-emerald-500", hasError ? "bg-red-500" : "animate-pulse")} />
+          <span>{hasError ? "Sistem Gangguan" : "Sistem Live"}</span>
         </div>
       </div>
 
@@ -35,7 +80,9 @@ export default async function AdminDashboard() {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div>
                 <p className="text-xs font-black uppercase tracking-wider text-slate-400">{stat.title}</p>
-                <p className="text-3xl font-black text-slate-900 tracking-tight mt-1">{stat.value}</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight mt-1">
+                  {stat.value}
+                </p>
               </div>
               <div className={`p-3 rounded-2xl border ${stat.bg} group-hover:scale-110 transition-transform duration-300`}>
                 <stat.icon className={`h-6 w-6 ${stat.color} ${stat.iconClass || ""}`} />
@@ -63,11 +110,7 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent className="space-y-4">
              <div className="space-y-4">
-                {[
-                  { time: "10 menit yang lalu", action: "Perubahan status penerbangan HX-0101 menjadi Delay (20m)", user: "Sistem Otomatis" },
-                  { time: "1 jam yang lalu", action: "Menambahkan jadwal penerbangan baru rute SUB -> CGK", user: "Admin Horizon" },
-                  { time: "3 jam yang lalu", action: "Memperbarui data maskapai Garuda Indonesia", user: "Admin Horizon" },
-                ].map((act, i) => (
+                {displayLogs.map((act, i) => (
                   <div key={i} className="flex gap-4 items-start p-3 hover:bg-slate-50 rounded-2xl transition-colors">
                     <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 shrink-0" />
                     <div className="flex-1">
@@ -92,15 +135,30 @@ export default async function AdminDashboard() {
              <div className="space-y-4">
                 <div className="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
                   <span className="text-xs font-bold text-slate-600">Database (Supabase)</span>
-                  <span className="text-xs font-black uppercase text-emerald-600 flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" /> Terhubung</span>
+                  <span className={cn(
+                    "text-xs font-black uppercase flex items-center gap-1.5",
+                    hasError ? "text-red-600" : "text-emerald-600"
+                  )}>
+                    <span className={cn("h-2 w-2 rounded-full", hasError ? "bg-red-600" : "bg-emerald-600 animate-pulse")} />
+                    {hasError ? "GANGGUAN" : "TERHUBUNG"}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
                   <span className="text-xs font-bold text-slate-600">Service API (Railway)</span>
-                  <span className="text-xs font-black uppercase text-emerald-600 flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" /> Aktif</span>
+                  <span className={cn(
+                    "text-xs font-black uppercase flex items-center gap-1.5",
+                    hasError ? "text-red-600" : "text-emerald-600"
+                  )}>
+                    <span className={cn("h-2 w-2 rounded-full", hasError ? "bg-red-600" : "bg-emerald-600 animate-pulse")} />
+                    {hasError ? "OFFLINE" : "AKTIF"}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
                   <span className="text-xs font-bold text-slate-600">Keamanan SSL</span>
-                  <span className="text-xs font-black uppercase text-emerald-600 flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" /> Terlindungi</span>
+                  <span className="text-xs font-black uppercase text-emerald-600 flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
+                    TERLINDUNGI
+                  </span>
                 </div>
              </div>
           </CardContent>
