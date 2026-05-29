@@ -45,11 +45,21 @@ export default function LandingPage() {
               </div>
 
               <div className="pt-10 flex items-center gap-6 animate-in fade-in duration-1000 delay-700">
-                 <div className="flex -space-x-3">
-                    {[1,2,3,4].map(i => (
-                      <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200" />
-                    ))}
-                 </div>
+                  <div className="flex -space-x-3">
+                     {[
+                       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop",
+                       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop",
+                       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop",
+                       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop"
+                     ].map((url, i) => (
+                       <img 
+                         key={i} 
+                         src={url} 
+                         alt={`User avatar ${i + 1}`}
+                         className="w-10 h-10 rounded-full border-2 border-white object-cover" 
+                       />
+                     ))}
+                  </div>
                  <div className="text-sm">
                     <div className="flex items-center gap-1 text-amber-500">
                        {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-current" />)}
@@ -62,9 +72,9 @@ export default function LandingPage() {
             <div className="relative hidden lg:block group">
               <div className="absolute -inset-10 bg-blue-600/10 blur-[120px] rounded-full animate-pulse" />
               <div className="relative glass-card p-6 rounded-[2.5rem] premium-shadow border-white/40 rotate-1 group-hover:rotate-0 transition-transform duration-700">
-                 <div className="aspect-[4/5] rounded-[2rem] bg-slate-950 overflow-hidden relative">
-                    {/* Placeholder for Video or High-End Image */}
-                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1436491865332-7a61a109c055?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-60 grayscale hover:opacity-100 transition-opacity duration-1000" />
+                  <div className="aspect-[4/5] rounded-[2rem] bg-slate-950 overflow-hidden relative">
+                     {/* Placeholder for Video or High-End Image */}
+                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1606761568499-6d2451b23c66?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-85 hover:scale-105 transition-transform duration-[2000ms]" />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
                     <div className="absolute bottom-10 left-10 right-10 space-y-4">
                        <p className="text-white text-3xl font-black tracking-tight leading-none uppercase">Premium <br /> Experience</p>
