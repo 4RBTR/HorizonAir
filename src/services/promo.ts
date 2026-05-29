@@ -16,8 +16,8 @@ export const getPromo = async (): Promise<KodePromo[]> => {
     const data = response.data?.data || response.data;
     return Array.isArray(data) ? data : [];
   } catch (error) {
-    console.warn("API Error, using mock data for Promo");
-    return MOCK_PROMO;
+    console.error("API Error in getPromo:", error);
+    throw error;
   }
 };
 

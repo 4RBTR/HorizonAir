@@ -11,14 +11,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Fallback for Mocking
-        if (credentials?.username === "admin" && credentials?.password === "admin") {
-          return { id: "admin-1", name: "Admin Horizon", role: "admin" };
-        }
-        if (credentials?.username === "user" && credentials?.password === "user") {
-          return { id: "user-1", name: "Danendra Bagas", role: "customer" };
-        }
-
         try {
           const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/Auth/Login`, {
             username: credentials?.username,

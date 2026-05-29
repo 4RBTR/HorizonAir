@@ -15,8 +15,8 @@ export const getMaskapai = async (): Promise<Maskapai[]> => {
     const data = response.data?.data || response.data;
     return Array.isArray(data) ? data : [];
   } catch (error) {
-    console.warn("API Error, using mock data for Maskapai");
-    return MOCK_MASKAPAI;
+    console.error("API Error in getMaskapai:", error);
+    throw error;
   }
 };
 

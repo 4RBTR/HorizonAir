@@ -97,8 +97,8 @@ export const getJadwal = async (): Promise<JadwalPenerbangan[]> => {
     }
     return [];
   } catch (error) {
-    console.warn("API Error, using mock data for Jadwal", error);
-    return MOCK_JADWAL;
+    console.error("API Error in getJadwal:", error);
+    throw error;
   }
 };
 

@@ -17,8 +17,8 @@ export const getBandara = async (): Promise<Bandara[]> => {
     const data = response.data?.data || response.data;
     return Array.isArray(data) ? data : [];
   } catch (error) {
-    console.warn("API Error, using mock data for Bandara");
-    return MOCK_BANDARA;
+    console.error("API Error in getBandara:", error);
+    throw error;
   }
 };
 
