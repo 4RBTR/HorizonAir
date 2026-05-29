@@ -79,9 +79,9 @@ export const getJadwal = async (): Promise<JadwalPenerbangan[]> => {
 
         return {
           ...j,
-          bandaraKeberangkatanId: bandaraKeberangkatanObj?.id || "",
-          bandaraTujuanId: bandaraTujuanObj?.id || "",
-          maskapaiId: maskapaiObj?.id || "",
+          bandaraKeberangkatanId: bandaraKeberangkatanObj?.id ? String(bandaraKeberangkatanObj.id) : "",
+          bandaraTujuanId: bandaraTujuanObj?.id ? String(bandaraTujuanObj.id) : "",
+          maskapaiId: maskapaiObj?.id ? String(maskapaiObj.id) : "",
           bandaraKeberangkatan: bandaraKeberangkatanObj,
           bandaraTujuan: bandaraTujuanObj,
           maskapai: maskapaiObj,

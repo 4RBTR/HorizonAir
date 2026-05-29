@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { CustomerNavbar } from "@/components/customer-navbar";
+import { CustomerSidebar } from "@/components/customer-sidebar";
 
 export default async function CustomerLayout({
   children,
@@ -14,16 +14,10 @@ export default async function CustomerLayout({
     redirect("/login");
   }
 
-  // Allow both customer and admin to access customer area (admin can test)
-  // or restrict strictly. Let's restrict strictly if needed, but usually admin can also be a customer.
-  // if ((session?.user as any).role !== "customer") {
-  //   redirect("/"); 
-  // }
-
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
-      <CustomerNavbar user={session.user} />
-      <main className="flex-1 container mx-auto px-4 py-8">
+    <div className="flex flex-col md:flex-row min-h-screen bg-slate-50">
+      <CustomerSidebar />
+      <main className="flex-1 overflow-x-hidden p-4 md:p-8">
         {children}
       </main>
     </div>

@@ -5,14 +5,36 @@ import { useQuery } from "@tanstack/react-query";
 import { getJadwal } from "@/services/jadwal";
 import { getPromo } from "@/services/promo";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlaneTakeoff, PlaneLanding, Calendar, Users, Search, Ticket, MapPin, Compass, Landmark } from "lucide-react";
+import { 
+  PlaneTakeoff, 
+  PlaneLanding, 
+  Calendar, 
+  Users, 
+  Search, 
+  Ticket, 
+  MapPin, 
+  Compass, 
+  Landmark,
+  Plane,
+  Clock,
+  ArrowRight,
+  Shield,
+  Wifi,
+  Utensils,
+  Briefcase,
+  ChevronLeft,
+  ChevronRight,
+  Loader2
+} from "lucide-react";
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { addMinutes, format } from "date-fns";
+import Link from "next/link";
 
 export default function CustomerDashboard() {
   const { data: session } = useSession();
@@ -25,7 +47,10 @@ export default function CustomerDashboard() {
     penumpang: 1,
   });
 
-  const { data: jadwals } = useQuery({ queryKey: ["jadwal"], queryFn: getJadwal });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const { data: jadwals, isLoading: isJadwalLoading } = useQuery({ queryKey: ["jadwal"], queryFn: getJadwal });
   const { data: promos } = useQuery({ queryKey: ["promo"], queryFn: getPromo });
 
   // Dynamically extract unique departure airports that have flight schedules
@@ -92,6 +117,33 @@ export default function CustomerDashboard() {
     }).slice(0, 4);
   }, [jadwals]);
 
+  // Paginated flights list for dashboard view
+  const activeFlights = useMemo(() => {
+    if (!jadwals) return [];
+    return [...jadwals].sort((a, b) => {
+      const dateA = new Date(`${a.tanggalKeberangkatan}T${a.waktuKeberangkatan}`).getTime();
+      const dateB = new Date(`${b.tanggalKeberangkatan}T${b.waktuKeberangkatan}`).getTime();
+      return dateA - dateB;
+    });
+  }, [jadwals]);
+
+  const paginatedFlights = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return activeFlights.slice(start, start + itemsPerPage);
+  }, [activeFlights, currentPage]);
+
+  const totalPages = Math.ceil(activeFlights.length / itemsPerPage);
+
+  const getArrivalTime = (start: string, duration: number) => {
+    try {
+      const [h, m] = start.split(":").map(Number);
+      const date = addMinutes(new Date(2000, 0, 1, h, m), duration);
+      return format(date, "HH:mm");
+    } catch (e) {
+      return "--:--";
+    }
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchData.asal || !searchData.tujuan) {
@@ -143,7 +195,7 @@ export default function CustomerDashboard() {
                   value={searchData.asal}
                   onValueChange={(v) => setSearchData({...searchData, asal: v || ""})}
                 >
-                  <SelectTrigger className="h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-blue-600 font-bold text-slate-800 border">
+                  <SelectTrigger className="w-full h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-blue-600 font-bold text-slate-800 border">
                     <SelectValue placeholder="Pilih Bandara Asal" />
                   </SelectTrigger>
                   <SelectContent>
@@ -163,7 +215,7 @@ export default function CustomerDashboard() {
                   value={searchData.tujuan}
                   onValueChange={(v) => setSearchData({...searchData, tujuan: v || ""})}
                 >
-                  <SelectTrigger className="h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-blue-600 font-bold text-slate-800 border">
+                  <SelectTrigger className="w-full h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-blue-600 font-bold text-slate-800 border">
                     <SelectValue placeholder="Pilih Bandara Tujuan" />
                   </SelectTrigger>
                   <SelectContent>
@@ -213,6 +265,136 @@ export default function CustomerDashboard() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Flight Schedule List (Daftar Penerbangan Aktif) */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+              <Plane className="h-5 w-5 text-blue-600" /> Jadwal Penerbangan Horizon
+            </h2>
+            <p className="text-slate-500 text-sm font-medium">Lihat dan pilih langsung seluruh jadwal penerbangan aktif kami dari database.</p>
+          </div>
+          <span className="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-bold">{activeFlights.length} Penerbangan</span>
+        </div>
+
+        {isJadwalLoading ? (
+          <div className="flex flex-col justify-center items-center py-20 space-y-4">
+             <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+             <p className="text-slate-500 text-sm font-bold">Memuat seluruh jadwal penerbangan...</p>
+          </div>
+        ) : paginatedFlights.length === 0 ? (
+          <Card className="border-dashed border-2 py-16 text-center text-slate-500 font-medium rounded-3xl">
+             Belum ada jadwal penerbangan terdaftar.
+          </Card>
+        ) : (
+          <div className="grid gap-6">
+            {paginatedFlights.map((j) => (
+              <Card key={j.id} className="group hover:shadow-xl transition-all duration-300 border-none shadow-sm rounded-3xl overflow-hidden bg-white">
+                <CardContent className="p-6 md:p-8">
+                  <div className="grid lg:grid-cols-12 gap-6 items-center">
+                    
+                    {/* Airline Info */}
+                    <div className="lg:col-span-3 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100 group-hover:bg-blue-600 transition-colors duration-500 shrink-0">
+                        <Plane className="h-6 w-6 text-blue-600 group-hover:text-white rotate-45 transition-colors duration-500" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-base text-slate-900 leading-snug">{j.maskapai?.nama}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[9px] font-black uppercase tracking-wider bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">{j.kodePenerbangan}</span>
+                          <span className={cn(
+                            "text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded",
+                            j.statusTerakhir?.status === "Delay" ? "bg-amber-100 text-amber-700" :
+                            j.statusTerakhir?.status === "Dibatalkan" ? "bg-red-100 text-red-700" :
+                            j.statusTerakhir?.status === "Berangkat" ? "bg-indigo-100 text-indigo-700" :
+                            j.statusTerakhir?.status === "Mendarat" ? "bg-emerald-100 text-emerald-700" :
+                            "bg-blue-100 text-blue-700"
+                          )}>
+                            {j.statusTerakhir?.status || "Sesuai Jadwal"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Flight Timeline */}
+                    <div className="lg:col-span-4 grid grid-cols-7 items-center gap-2">
+                      <div className="col-span-2 text-right">
+                        <p className="text-xl font-black text-slate-900 leading-none">{j.waktuKeberangkatan}</p>
+                        <p className="text-[10px] font-bold text-slate-400 mt-1">{j.bandaraKeberangkatan?.kodeIATA} - {j.bandaraKeberangkatan?.kota}</p>
+                      </div>
+
+                      <div className="col-span-3 flex flex-col items-center gap-1">
+                        <p className="text-[9px] text-slate-400 font-bold tracking-tight">
+                          {Math.floor(j.durasiPenerbanganMenit / 60)}j {j.durasiPenerbanganMenit % 60}m
+                        </p>
+                        <div className="w-full h-[1.5px] bg-slate-100 relative">
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-1 group-hover:scale-110 transition-transform">
+                            <Plane className="h-3.5 w-3.5 text-blue-500 rotate-45" />
+                          </div>
+                        </div>
+                        <p className="text-[9px] text-slate-400 font-bold">{j.tanggalKeberangkatan}</p>
+                      </div>
+
+                      <div className="col-span-2 text-left">
+                        <p className="text-xl font-black text-slate-900 leading-none">{getArrivalTime(j.waktuKeberangkatan, j.durasiPenerbanganMenit)}</p>
+                        <p className="text-[10px] font-bold text-slate-400 mt-1">{j.bandaraTujuan?.kodeIATA} - {j.bandaraTujuan?.kota}</p>
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="lg:col-span-2 flex justify-center lg:justify-start gap-3 text-slate-400">
+                      <div className="flex flex-col items-center gap-0.5" title="Bagasi 20kg"><Briefcase className="h-4 w-4" /><span className="text-[8px] font-bold">20kg</span></div>
+                      <div className="flex flex-col items-center gap-0.5" title="Snack Kabin"><Utensils className="h-4 w-4" /><span className="text-[8px] font-bold">Snack</span></div>
+                      <div className="flex flex-col items-center gap-0.5" title="WiFi Gratis"><Wifi className="h-4 w-4" /><span className="text-[8px] font-bold">WiFi</span></div>
+                    </div>
+
+                    {/* Price and CTA */}
+                    <div className="lg:col-span-3 flex items-center justify-between lg:justify-end gap-6 border-t lg:border-t-0 lg:border-l border-slate-100 pt-4 lg:pt-0 lg:pl-6">
+                      <div className="text-left lg:text-right">
+                        <p className="text-[9px] font-black uppercase text-slate-400">Mulai Dari</p>
+                        <p className="text-lg font-black text-emerald-600 mt-0.5">IDR {j.hargaPerTiket.toLocaleString()}</p>
+                      </div>
+                      <Link 
+                        href={`/customer/beli-tiket?jadwalId=${j.id}&penumpang=1`} 
+                        className={cn(buttonVariants({ size: "sm" }), "bg-slate-950 hover:bg-slate-800 text-white font-bold h-10 rounded-xl px-4 shadow-lg transition-all hover:scale-105 active:scale-95 shrink-0")}
+                      >
+                        Pilih
+                      </Link>
+                    </div>
+
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination Footer */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3 pt-4">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(currentPage - 1)}
+              className="h-10 w-10 rounded-xl"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <span className="text-sm font-bold text-slate-600">Halaman {currentPage} dari {totalPages}</span>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(currentPage + 1)}
+              className="h-10 w-10 rounded-xl"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+        )}
+      </div>
 
       {/* Popular Destinations Grid */}
       {destinations.length > 0 && (

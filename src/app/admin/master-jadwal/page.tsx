@@ -235,11 +235,11 @@ export default function MasterJadwalPage() {
                   <FormItem className="space-y-1"><FormLabel className="text-xs font-bold text-slate-600">Kode Penerbangan</FormLabel><FormControl><Input placeholder="Contoh: HX-1234" {...field} className="h-11 rounded-xl border-slate-200 uppercase font-bold" /></FormControl><FormMessage /></FormItem>
                 )} />
                 
-                <FormField control={form.control as any} name="maskapaiId" render={({ field }: any) => (
+                 <FormField control={form.control as any} name="maskapaiId" render={({ field }: any) => (
                   <FormItem className="space-y-1"><FormLabel className="text-xs font-bold text-slate-600">Maskapai</FormLabel>
                     <Select onValueChange={(v) => v && field.onChange(v)} value={field.value}>
                       <FormControl><SelectTrigger className="h-11 rounded-xl border-slate-200"><SelectValue placeholder="Pilih Maskapai" /></SelectTrigger></FormControl>
-                      <SelectContent>{maskapais?.map(m => <SelectItem key={m.id} value={m.id}>{m.nama}</SelectItem>)}</SelectContent>
+                      <SelectContent>{maskapais?.map(m => <SelectItem key={m.id} value={String(m.id)}>{m.nama}</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage /></FormItem>
                 )} />
@@ -249,7 +249,7 @@ export default function MasterJadwalPage() {
                     <FormItem className="space-y-1"><FormLabel className="text-xs font-bold text-slate-600">Asal</FormLabel>
                       <Select onValueChange={(v) => v && field.onChange(v)} value={field.value}>
                         <FormControl><SelectTrigger className="h-11 rounded-xl border-slate-200"><SelectValue placeholder="Asal" /></SelectTrigger></FormControl>
-                        <SelectContent>{bandaras?.map(b => <SelectItem key={b.id} value={b.id}>{b.kodeIATA} - {b.kota}</SelectItem>)}</SelectContent>
+                        <SelectContent>{bandaras?.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.kodeIATA} - {b.kota}</SelectItem>)}</SelectContent>
                       </Select>
                       <FormMessage /></FormItem>
                   )} />
@@ -257,7 +257,7 @@ export default function MasterJadwalPage() {
                     <FormItem className="space-y-1"><FormLabel className="text-xs font-bold text-slate-600">Tujuan</FormLabel>
                       <Select onValueChange={(v) => v && field.onChange(v)} value={field.value}>
                         <FormControl><SelectTrigger className="h-11 rounded-xl border-slate-200"><SelectValue placeholder="Tujuan" /></SelectTrigger></FormControl>
-                        <SelectContent>{bandaras?.map(b => <SelectItem key={b.id} value={b.id}>{b.kodeIATA} - {b.kota}</SelectItem>)}</SelectContent>
+                        <SelectContent>{bandaras?.map(b => <SelectItem key={b.id} value={String(b.id)}>{b.kodeIATA} - {b.kota}</SelectItem>)}</SelectContent>
                       </Select>
                       <FormMessage /></FormItem>
                   )} />
