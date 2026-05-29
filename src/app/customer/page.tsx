@@ -89,11 +89,11 @@ export default function CustomerDashboard() {
     const uniqueDests = Array.from(map.values());
     
     const destMetadata: Record<string, { image: string; tag: string }> = {
-      CGK: { tag: "Metropolitan", image: "https://images.unsplash.com/photo-1569003339405-ea396a5a8a90?q=80&w=600&auto=format&fit=crop" },
-      HLP: { tag: "Urban Hub", image: "https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?q=80&w=600&auto=format&fit=crop" },
-      SUB: { tag: "Kota Pahlawan", image: "https://images.unsplash.com/photo-1601999109332-542b18dbec57?q=80&w=600&auto=format&fit=crop" },
-      PNK: { tag: "Equator City", image: "https://images.unsplash.com/photo-1572252009286-268acec5ca0a?q=80&w=600&auto=format&fit=crop" },
-      DPS: { tag: "Pantai & Budaya", image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=600&auto=format&fit=crop" },
+      CGK: { tag: "Metropolitan", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=600&auto=format&fit=crop" },
+      HLP: { tag: "Urban Hub", image: "https://images.unsplash.com/photo-1436491865332-7a61a109c055?q=80&w=600&auto=format&fit=crop" },
+      SUB: { tag: "Kota Pahlawan", image: "https://images.unsplash.com/photo-1490430657723-4d607c1503fc?q=80&w=600&auto=format&fit=crop" },
+      PNK: { tag: "Equator City", image: "https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?q=80&w=600&auto=format&fit=crop" },
+      DPS: { tag: "Pantai & Budaya", image: "https://images.unsplash.com/photo-1530521954074-e64f6810b32d?q=80&w=600&auto=format&fit=crop" },
     };
 
     return uniqueDests.map(b => {

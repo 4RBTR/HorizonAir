@@ -74,7 +74,7 @@ export default function LandingPage() {
               <div className="relative glass-card p-6 rounded-[2.5rem] premium-shadow border-white/40 rotate-1 group-hover:rotate-0 transition-transform duration-700">
                   <div className="aspect-[4/5] rounded-[2rem] bg-slate-950 overflow-hidden relative">
                      {/* Placeholder for Video or High-End Image */}
-                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1606761568499-6d2451b23c66?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-85 hover:scale-105 transition-transform duration-[2000ms]" />
+                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1540962351504-03099e0a754b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-85 hover:scale-105 transition-transform duration-[2000ms]" />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
                     <div className="absolute bottom-10 left-10 right-10 space-y-4">
                        <p className="text-white text-3xl font-black tracking-tight leading-none uppercase">Premium <br /> Experience</p>
