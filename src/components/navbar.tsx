@@ -1,11 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Plane, LogIn, UserPlus } from "lucide-react";
+import { Plane, LogIn, UserPlus, LayoutDashboard, LogOut } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useSession, signOut } from "next-auth/react";
 
 export function Navbar() {
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role;
+  const dashboardPath = role === "admin" ? "/admin" : "/customer";
+
   return (
     <nav className="border-b border-white/10 bg-white/60 backdrop-blur-xl sticky top-0 z-50 transition-all duration-300">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
@@ -31,12 +36,31 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/login" className={cn(buttonVariants({ variant: "ghost" }), "font-bold text-slate-600 hover:text-blue-600 gap-2")}>
-            <LogIn className="h-4 w-4" /> Masuk
-          </Link>
-          <Link href="/register" className={cn(buttonVariants(), "bg-slate-950 text-white hover:bg-slate-800 px-6 rounded-xl font-bold shadow-xl gap-2")}>
-            <UserPlus className="h-4 w-4" /> Join Elite
-          </Link>
+          {session ? (
+            <>
+              <Link 
+                href={dashboardPath} 
+                className={cn(buttonVariants({ variant: "ghost" }), "font-bold text-slate-600 hover:text-blue-600 gap-2")}
+              >
+                <LayoutDashboard className="h-4.5 w-4.5" /> Dashboard
+              </Link>
+              <button 
+                onClick={() => signOut()} 
+                className={cn(buttonVariants(), "bg-red-600 hover:bg-red-700 text-white px-6 rounded-xl font-bold shadow-xl gap-2 cursor-pointer")}
+              >
+                <LogOut className="h-4.5 w-4.5" /> Keluar
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className={cn(buttonVariants({ variant: "ghost" }), "font-bold text-slate-600 hover:text-blue-600 gap-2")}>
+                <LogIn className="h-4 w-4" /> Masuk
+              </Link>
+              <Link href="/register" className={cn(buttonVariants(), "bg-slate-950 text-white hover:bg-slate-800 px-6 rounded-xl font-bold shadow-xl gap-2")}>
+                <UserPlus className="h-4 w-4" /> Join Elite
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
