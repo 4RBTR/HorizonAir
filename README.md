@@ -1,70 +1,114 @@
-# Horizon Air - Sistem Informasi Tiket Penerbangan
+# ✈️ HORIZON AIR — Premium Flight Booking System
 
-Horizon Air adalah aplikasi web pemesanan tiket penerbangan modern kelas eksekutif yang dikembangkan sebagai **Project UKL (Ujian Kompetensi Keahlian) SMK Telkom Malang**. 
+[![Next.js Version](https://img.shields.io/badge/Next.js-16.2.6-blue?logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![React Version](https://img.shields.io/badge/React-19.0.0-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![NextAuth](https://img.shields.io/badge/NextAuth.js-v4.24-green?logo=auth0&logoColor=white)](https://next-auth.js.org)
+[![Deployment](https://img.shields.io/badge/Deployed-Vercel-black?logo=vercel&logoColor=white)](https://vercel.com)
 
-Aplikasi ini mengintegrasikan portal pencarian tiket penerbangan bagi pelanggan (Customer) serta panel kontrol manajemen penerbangan bagi administrator (Admin).
+**Horizon Air** adalah platform digital pemesanan tiket pesawat udara modern yang dirancang khusus dengan **Desain Premium Bertema Cahaya (Light Sky Theme)**. Proyek ini dikembangkan untuk **Project UKL (Ujian Kompetensi Keahlian) SMK Telkom Malang** guna menghadirkan pengalaman pemesanan tiket penerbangan kelas eksekutif dengan kemudahan aksesibilitas maksimal.
 
----
-
-## 🚀 Teknologi yang Digunakan
-
-Aplikasi ini dibangun menggunakan tumpukan teknologi modern berikut:
-
-- **Core & Routing:** [Next.js 16 (App Router)](https://nextjs.org) & [React 19](https://react.dev)
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com) & [Shadcn UI](https://ui.shadcn.com)
-- **Authentication:** [NextAuth.js v4](https://next-auth.js.org) (dengan JWT Session & Interceptor token otomatis)
-- **State Management & Fetching:** [TanStack React Query v5](https://tanstack.com/query) & [Axios](https://axios-http.com)
-- **Visuals & Icons:** [Lucide Icons](https://lucide.dev) & Animasi transisi custom CSS
-- **Date Helpers:** [date-fns](https://date-fns.org)
-- **Notifications:** [Sonner](https://sonner.dev)
+Aplikasi ini memiliki integrasi yang mulus antara **Portal Customer** untuk reservasi penerbangan instan dan **Panel Dashboard Admin** untuk mengelola data operasional penerbangan secara terpusat.
 
 ---
 
-## 🌟 Fitur Utama
+## 🎨 Keunggulan Desain & UX Modern
 
-### ✈️ Portal Pelanggan (Customer Experience)
-- **Landing / Welcome Page:** Tampilan beranda premium dengan visual petualangan, lencana promo interaktif, dan navigasi langsung ke halaman register.
-- **Flight Search Portal:** Antarmuka pencarian tiket dengan filter pencarian instan rute keberangkatan, tujuan, tanggal, dan jumlah penumpang.
-- **Flight Search Results:** Dilengkapi visual **timeline penerbangan grafik**, indikator bagasi gratis (20kg), status makanan kabin (snack), fasilitas WiFi, serta tag perlindungan refund.
-- **Voucher Promo & Checkout:** Form pengisian data penumpang terstruktur lengkap dengan kalkulasi potongan harga kupon otomatis pada invoice pembayaran.
-- **E-Tiket & Tiket Saya:** Menggunakan *dynamic local serialization fallback* (`localStorage`) untuk menyimpan data lengkap tiket yang berhasil dipesan agar tetap dapat ditampilkan di riwayat tiket secara instan.
-
-### 🛠️ Panel Administrator (Admin Operations)
-- **Operational Dashboard:** Dasbor visual ringkasan data bandara, jadwal terbang, status live server database (Supabase) dan service API (Railway).
-- **Master Bandara (Airports):** CRUD data bandara lengkap dengan kode IATA, lokasi kota/negara, dan kapasitas terminal.
-- **Master Maskapai (Airlines):** CRUD armada maskapai, detail perusahaan induk, dan jumlah kru aktif.
-- **Master Jadwal Penerbangan (Schedules):** Penjadwalan terbang, pemilihan asal-tujuan, dan kalkulasi durasi jam/menit terbang.
-- **Master Kode Promo (Vouchers):** Pengaturan kode kupon diskon persentase dan batas maksimal potongan.
-- **Ubah Status Penerbangan:** Dasbor pembaruan live status delay, berangkat, mendarat, atau pembatalan terbang.
+- 🌤️ **Premium Light Aesthetic:** Menggunakan latar belakang cerah bertekstur *soft radial blurs* bernuansa biru langit dan indigo untuk memberikan kesan clean, profesional, dan futuristik.
+- 🔍 **Interactive Autocomplete Dropdown:** Menggantikan select dropdown standar dengan kolom input pencarian bandara interaktif yang mendeteksi kota, nama bandara, maupun kode IATA secara langsung dari database backend.
+- ⚡ **Dynamic Flight Timeline:** Menampilkan informasi transit, durasi penerbangan, serta integrasi kelas bagasi (20kg), snack kabin, WiFi, dan garansi refund dengan diagram visual interaktif.
+- 🔐 **Secure Form Validation:** Integrasi dengan React Hook Form dan Zod untuk memastikan keamanan data masukan pengguna serta keandalan saat registrasi dan pemesanan.
+- 🕒 **Live Indonesian Clock Badge:** Dilengkapi dengan widget waktu rill dan tanggal lokal di halaman masuk & daftar guna memberikan kenyamanan presisi operasional bagi pengguna.
 
 ---
 
-## 🛠️ Langkah Menjalankan Project
+## 🚀 Tumpukan Teknologi (Tech Stack)
 
-### 1. Salin Environment Variables
-Buat berkas `.env.local` di root direktori proyek Anda dan isikan konfigurasi berikut:
+### Sisi Client (Frontend)
+- **Framework Utama:** Next.js 16 (App Router) & React 19
+- **Bahasa Pemrograman:** TypeScript
+- **Styling & UI:** Tailwind CSS v4, Shadcn UI, & Lucide Icons
+- **State Management:** TanStack React Query v5 & Axios Interceptors
+- **Autentikasi:** NextAuth.js v4 (JWT Session Integration)
 
-```env
-NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-nextauth-secret-key-here
+### Sisi Server (Backend)
+- **API Server:** ASP.NET Core (Railway Production Engine)
+- **Database Engine:** Supabase PostgreSQL
+
+---
+
+## 📊 Arsitektur Sistem
+
+Berikut adalah alur komunikasi data antara Pengguna, Frontend Next.js, Gateway Proxy, dan API Server Backend:
+
+```mermaid
+graph TD
+    User([✈️ Pelanggan / Admin]) -->|Akses UI / Mengisi Form| FE[Next.js Client v16]
+    FE -->|Client Session / Token Bearer| Proxy[Next.js API Rewrite Proxy /api/proxy/*]
+    Proxy -->|Forward Requests| BE[ASP.NET Core Backend API]
+    BE -->|Query & Simpan| DB[(Supabase PostgreSQL Database)]
+    
+    subgraph Sesi Autentikasi
+        FE <-->|Validasi Kredensial| Auth[NextAuth.js Provider]
+    end
 ```
 
-### 2. Instalasi Dependensi
+---
+
+## 🌟 Fitur Utama Aplikasi
+
+| Komponen | Fitur Unggulan | Penjelasan Fungsional |
+| :--- | :--- | :--- |
+| **Landing Page** | 🌤️ **Search Widget Interaktif** | Memilih rute terbang (Asal & Tujuan) dengan auto-suggest pintar, tanggal, dan jumlah penumpang. |
+| | ⭐ **Ulasan Pengguna (Testimonials)** | Slider umpan balik dari pebisnis dan pelancong premium untuk meningkatkan konversi. |
+| | ❓ **FAQ Accordion** | Komponen interaktif tanya-jawab seputar reschedule, bagasi gratis, dan metode bayar. |
+| **Portal Customer** | 📅 **Riwayat Tiket Saya** | Menyimpan riwayat pemesanan secara instan dan menampilkan boarding pass dalam format modal premium. |
+| | 🎫 **Kupon Diskon Otomatis** | Menyalin dan mengaplikasikan voucher diskon (persentase/nominal rupiah) langsung pada invoice belanja. |
+| | 🧑‍✈️ **Form Penumpang Fleksibel** | Validasi nomor identitas dan data diri dinamis berdasarkan jumlah manifes penumpang yang dipesan. |
+| **Panel Admin** | 📊 **Operational Dashboard** | Widget rangkuman data bandara, penerbangan aktif, total armada, dan status server internal. |
+| | 🛠️ **Master CRUD Database** | Manajemen penuh data Bandara (IATA), Maskapai, Jadwal Penerbangan, dan Voucher Promo. |
+| | 🔁 **Live Status Manager** | Mengubah status delay, berangkat, atau pembatalan terbang secara real-time. |
+
+---
+
+## 🛠️ Panduan Instalasi & Pengembangan Lokal
+
+### 1. Klon Proyek & Salin Konfigurasi Env
+Buat sebuah berkas bernama `.env.local` di dalam direktori utama proyek Anda dan isi dengan nilai berikut:
+
+```env
+NEXT_PUBLIC_BACKEND_URL=your-backend-api-url
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-key
+```
+
+### 2. Pasang Dependensi Node
+Gunakan npm untuk mengunduh seluruh pustaka yang dibutuhkan proyek:
 ```bash
 npm install
 ```
 
-### 3. Jalankan Mode Development
+### 3. Jalankan Server Dev Lokal
+Mulailah menjalankan server pengembangan lokal:
 ```bash
 npm run dev
 ```
-Buka browser Anda dan akses halaman [http://localhost:3000](http://localhost:3000).
+Setelah berjalan, buka browser kesayangan Anda dan kunjungi halaman: **[http://localhost:3000](http://localhost:3000)**.
+
+### 4. Build untuk Produksi
+Untuk melakukan kompilasi proyek dan optimasi production-ready bundle:
+```bash
+npm run build
+```
 
 ---
 
-## 🖥️ Hak Akses Login Akun (Demo/Uji Coba)
+## 🖥️ Sistem Autentikasi & Simulasi Akun
 
-Karena sistem backend belum memiliki validator role bawaan pada database, frontend memetakan hak akses secara dinamis berdasarkan username yang diautentikasi:
-- **Akun Administrator:** Username mengandung kata **`admin`** (Contoh: `admin`, `admin123`) -> Otomatis diarahkan ke panel dasbor `/admin`.
-- **Akun Pelanggan (Customer):** Username bebas selain admin -> Diarahkan ke portal `/customer`.
+Proyek ini mendeteksi hak akses pengguna secara dinamis melalui username saat masuk (*Login*):
+* **Hak Akses Admin:** Masuk menggunakan username yang mengandung kata **`admin`** (Contoh: `admin`, `admin123`, `administrator`). Sistem akan otomatis mengarahkan ke dasbor manajemen operasional `/admin`.
+* **Hak Akses Customer:** Masuk menggunakan username lainnya secara bebas. Sistem akan otomatis mengarahkan ke halaman pencarian tiket `/customer`.
+
+---
+
+> 🔒 **Horizon Air** dilindungi oleh standar enkripsi JWT token berbasis NextAuth. Dibuat dengan presisi visual dan performa unggulan untuk LKS Provinsi Jawa Timur.

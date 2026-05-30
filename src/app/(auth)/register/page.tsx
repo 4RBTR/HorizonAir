@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -34,8 +34,9 @@ const registerSchema = z.object({
   password: z.string().min(8, "Password minimal 8 karakter"),
 });
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
@@ -89,7 +90,8 @@ export default function RegisterPage() {
       
       if (response.status === 201 || response.status === 200) {
         toast.success("Registrasi berhasil! Silakan masuk.");
-        router.push("/login");
+        const params = searchParams.toString();
+        router.push(params ? `/login?${params}` : "/login");
       }
     } catch (error: any) {
       const message = error.response?.data?.message || "Terjadi kesalahan saat registrasi.";
@@ -155,7 +157,17 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <h1 className="text-3xl font-black text-slate-950 tracking-tight">Daftar Akun ✈️</h1>
               <p className="text-slate-500 text-sm font-medium">
-                Sudah memiliki akun sebelumnya? <Link href="/login" className="text-blue-600 hover:underline font-bold">masuk di sini</Link>.
+                Sudah memiliki akun sebelumnya?{" "}
+                <Link 
+                  href={
+                    searchParams.toString() 
+                      ? `/login?${searchParams.toString()}` 
+                      : "/login"
+                  } 
+                  className="text-blue-600 hover:underline font-bold"
+                >
+                  masuk di sini
+                </Link>.
               </p>
             </div>
           </div>
@@ -308,5 +320,17 @@ export default function RegisterPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen w-full flex items-center justify-center bg-white">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+      </div>
+    }>
+      <RegisterContent />
+    </Suspense>
   );
 }

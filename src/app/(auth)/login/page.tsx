@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -27,8 +27,9 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password wajib diisi"),
 });
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
@@ -92,7 +93,21 @@ export default function LoginPage() {
         if (role === "admin") {
           router.push("/admin");
         } else {
-          router.push("/customer");
+          const asal = searchParams.get("asal");
+          const tujuan = searchParams.get("tujuan");
+          const tanggal = searchParams.get("tanggal");
+          const penumpang = searchParams.get("penumpang");
+
+          if (asal || tujuan || tanggal || penumpang) {
+            const params = new URLSearchParams();
+            if (asal) params.set("asal", asal);
+            if (tujuan) params.set("tujuan", tujuan);
+            if (tanggal) params.set("tanggal", tanggal);
+            if (penumpang) params.set("penumpang", penumpang);
+            router.push(`/customer/list-penerbangan?${params.toString()}`);
+          } else {
+            router.push("/customer");
+          }
         }
         router.refresh();
       }
@@ -159,7 +174,17 @@ export default function LoginPage() {
             <div className="space-y-2">
               <h1 className="text-3xl font-black text-slate-950 tracking-tight">Selamat Datang! 👋</h1>
               <p className="text-slate-500 text-sm font-medium">
-                Silakan masuk ke akun Anda atau <Link href="/register" className="text-blue-600 hover:underline font-bold">daftar baru</Link>.
+                Silakan masuk ke akun Anda atau{" "}
+                <Link 
+                  href={
+                    searchParams.toString() 
+                      ? `/register?${searchParams.toString()}` 
+                      : "/register"
+                  } 
+                  className="text-blue-600 hover:underline font-bold"
+                >
+                  daftar baru
+                </Link>.
               </p>
             </div>
           </div>
@@ -266,5 +291,17 @@ export default function LoginPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen w-full flex items-center justify-center bg-white">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
